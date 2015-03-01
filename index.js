@@ -1,7 +1,6 @@
 var parseComments = require('./lib/comment-parser.js');
 var EventEmitter = require("events").EventEmitter;
 
-var util = require('util');
 var Readable = require('stream').Readable;
 
 module.exports = makeStream;
