@@ -1,13 +1,13 @@
 {
   "name": "youtube-comment-stream",
   "version": "0.0.1",
-  "description": "Stream all comments and replies from a Youtube video.",
+  "description": "Stream all comments and replies from a Youtube video",
   "main": "index.js",
   "author": "Philip Klostermann <philip.klostermann@gmail.com>",
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "https://github.com/philbot9/youtube-domment-stream"
+    "url": "https://github.com/philbot9/youtube-comment-stream"
   },
   "dependencies": {
     "cheerio": "^0.18.0",
