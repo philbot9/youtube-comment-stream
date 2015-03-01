@@ -1,6 +1,5 @@
 var parseComments = require('./lib/comment-parser.js');
 var EventEmitter = require("events").EventEmitter;
-
 var Readable = require('stream').Readable;
 
 module.exports = makeStream;
@@ -10,71 +9,51 @@ function makeStream(videoID) {
 		return console.error(new Error("comment-streamer: No video ID specified"));
 
 	var loadCommentsPage = require('./lib/comment-pager.js')({"videoID": videoID});
-	var prevCommentID = 0;
-	var commentsArr = [];
+	var rStream = new Readable( {objectMode: true} );
+
+	var commentsJSON;
 	var prevComments = [];
 	var nextPageToken = null;
-	var commentsCount = 0;
 
-	var allCommentsScraped = false;
-
-	var ee = new EventEmitter;
-	ee.on('done', function() {
-		allCommentsScraped = true;
-	});
-
-
-	function getNextPage(callback) {
-		loadCommentsPage(nextPageToken, function(error, commentsRx, nxtPgToken) {
-			if(error)  {
-				return callback(error);
-			}
-			if(!commentsArr)
+	var getNextPage = function() {
+		loadCommentsPage(nextPageToken, function(error, commentsRx, nxtPageToken) {
+			if(error) 
+				rStream.emit('error', error);
+			if(!commentsRx)
 				return;
-			/* TODO: Handle errors differently: try to keep going. */
 
 			deleteOverlap(prevComments, commentsRx);
 
-			commentsArr.push.apply(commentsArr, commentsRx);
-			prevComments = commentsRx;
-			commentsCount += commentsRx.length;
-			nextPageToken = nxtPgToken;
+			if(!commentsJSON)
+				commentsJSON = [];
+			
+			commentsRx.forEach(function(comment) {
+				commentsJSON.push(JSON.stringify(comment));
+			});
 
-			if(!nextPageToken) {
-				ee.emit('done');
-			}
-			callback();
+			prevComments = commentsRx;
+			nextPageToken = nxtPageToken;
+
+			rStream.push(commentsJSON.shift());
 		});
 	};
 
-	var rStream = new Readable({objectMode: true});
-
 	rStream._read = function(size) {
-		if(!commentsArr.length) {
-			return getNextPage(function(error) {
-				if(error) {
-					console.error(error);
-					rStream.push(null);
-					/* TODO: handle errors differently: try to keep going. */
-				}
-				doPush();		
-			});
-		}
-		doPush();
-	}
+		if(!commentsJSON)
+			return getNextPage();
 
-	var doPush = function() {
-		while(rStream.push(
-			commentsArr.splice(0,1)[0]
-			)) {}	
-		
-		if(allCommentsScraped && !commentsArr.length)
-			rStream.push(null);
-	}
+		if(commentsJSON.length) {
+			this.push(commentsJSON.shift());
+		} else if(nextPageToken) {
+			return getNextPage();
+		} else {
+			this.push(null);
+		}
+	};
 
 	return rStream;
 };
-	
+
 /* Sometimes the last comment on one page is the same as the first comment on the
  * next page. It's definitely Youtube's fault!
  * This function gets rid of the extra comments on the second page */
