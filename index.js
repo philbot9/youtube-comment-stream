@@ -12,7 +12,7 @@ function makeStream(videoID) {
 	var rStream = new Readable( {objectMode: true} );
 
 	var commentsJSON;
-	var prevComments = [];
+	var prevComments;
 	var nextPageToken = null;
 
 	var getNextPage = function() {
@@ -58,6 +58,8 @@ function makeStream(videoID) {
  * next page. It's definitely Youtube's fault!
  * This function gets rid of the extra comments on the second page */
 function deleteOverlap(firstPage, secondPage) {
+	if(!firstPage || !secondPage)
+		return;
 	for(var i = firstPage.length-1; i >= 0; i--) {
 		if(commentsEqual(firstPage[i], secondPage[0]))
 			secondPage.splice(0, 1);
