@@ -16,23 +16,23 @@ function makeStream(videoID) {
 	var nextPageToken = null;
 
 	var getNextPage = function() {
-		loadCommentsPage(nextPageToken, function(error, commentsRx, nxtPageToken) {
+		loadCommentsPage(nextPageToken, function(error, page) {
 			if(error) 
 				rStream.emit('error', error);
-			if(!commentsRx)
+			if(!page.comments)
 				return;
 
-			deleteOverlap(prevComments, commentsRx);
+			deleteOverlap(prevComments, page.comments);
 
 			if(!commentsJSON)
 				commentsJSON = [];
 			
-			commentsRx.forEach(function(comment) {
+			page.comments.forEach(function(comment) {
 				commentsJSON.push(JSON.stringify(comment));
 			});
 
-			prevComments = commentsRx;
-			nextPageToken = nxtPageToken;
+			prevComments = page.comments;
+			nextPageToken = page.nextPageToken;
 
 			rStream.push(commentsJSON.shift());
 		});
@@ -70,5 +70,5 @@ function deleteOverlap(firstPage, secondPage) {
 
 /* What makes two comments equal? */
 function commentsEqual(c1, c2) {
-	return c1.youtubeCommentID === c2.youtubeCommentID;
+	return c1.id === c2.id;
 }
