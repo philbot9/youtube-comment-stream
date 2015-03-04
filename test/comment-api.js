@@ -11,6 +11,26 @@ describe("Comment API", function(){
 	it("should return a function", function(){
 		expect(getCommentsPage).to.be.a('function');
 	});
+
+	it("should return an error if no video ID is provided", function(){
+		expect(require('../lib/comment-api.js')()).to.be.instanceof(Error);
+	});
+
+	it("should give an error (500) for an invalid video ID", function(done){
+		this.timeout(10000);
+		var getCommentsPage = require('../lib/comment-api.js')( {videoID: "yadayada"} );
+
+		getCommentsPage(null, function(error, page) {
+			expect(error).to.exist;
+			expect(page).not.to.exist;
+			expect(error).to.have.a.property('status', 500);
+			done();
+		});
+	});
+
+	it("should accept a string as video ID", function(){
+		expect(require('../lib/comment-api.js')("eKEwL-10s7E")).to.be.a('function');
+	});
 	
 	it("should get a comments page without a page token", function(done){
 		this.timeout(10000);
