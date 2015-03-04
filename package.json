@@ -13,5 +13,10 @@
     "async": "^0.9.0",
     "cheerio": "^0.18.0",
     "xmlhttprequest-cookie": "^0.9.2"
+  },
+  "devDependencies": {
+    "cheerio": "^0.18.0",
+    "chai": "^2.1.0",
+    "mocha": "^2.1.0"
   }
 }
