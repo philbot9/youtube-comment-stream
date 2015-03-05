@@ -12,11 +12,26 @@ describe("Replies API", function(){
 		expect(getReplies).to.be.a('function');
 	});
 
-	it("should return an error if no video ID is provided", function(){
-		expect(require('../lib/replies-api.js')()).to.be.instanceof(Error);
+	it("should throw an error if no video ID is provided", function(){
+		expect(require('../lib/replies-api.js')).to.throw(Error);
+		expect(function(){
+			require('../lib/replies-api.js')();
+		}).to.throw(Error);
+		expect(function(){
+			require('../lib/replies-api.js')({});
+		}).to.throw(Error);
+		expect(function(){
+			require('../lib/replies-api.js')({yada: "yada"});
+		}).to.throw(Error);
+		expect(function(){
+			require('../lib/replies-api.js')({videoID: ""});
+		}).to.throw(Error);
+		expect(function(){
+			require('../lib/replies-api.js')("");
+		}).to.throw(Error);
 	});
 
-	it("accept a string as video ID", function(){
+	it("should accept a string as video ID", function(){
 		expect(require('../lib/replies-api.js')("eKEwL-10s7E")).to.be.a('function');
 	});
 

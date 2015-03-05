@@ -12,8 +12,23 @@ describe("Comment API", function(){
 		expect(getCommentsPage).to.be.a('function');
 	});
 
-	it("should return an error if no video ID is provided", function(){
-		expect(require('../lib/comment-api.js')()).to.be.instanceof(Error);
+	it("should throw an error if no video ID is provided", function(){
+		expect(require('../lib/comment-api.js')).to.throw(Error);
+		expect(function(){
+			require('../lib/comment-api.js')();
+		}).to.throw(Error);
+		expect(function(){
+			require('../lib/comment-api.js')({});
+		}).to.throw(Error);
+		expect(function(){
+			require('../lib/comment-api.js')({yada: "yada"});
+		}).to.throw(Error);
+		expect(function(){
+			require('../lib/comment-api.js')({videoID: ""});
+		}).to.throw(Error);
+		expect(function(){
+			require('../lib/comment-api.js')("");
+		}).to.throw(Error);
 	});
 
 	it("should give an error (500) for an invalid video ID", function(done){

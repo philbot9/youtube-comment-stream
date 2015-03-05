@@ -8,15 +8,18 @@ describe("Comment Parser", function(){
 		expect(parseComments).to.be.a('function');
 	});
 
-	it("should return an error if no HTML is provided", function(){
-		var res = parseComments();
-		expect(res).to.be.an.instanceof(Error);
-		var res = parseComments(null);
-		expect(res).to.be.an.instanceof(Error);
-		var res = parseComments("");
-		expect(res).to.be.an.instanceof(Error);
+	it("should throw an error if no HTML is provided", function(){
+		expect(parseComments).to.throw(Error);
+		expect(function(){
+			parseComments();
+		}).to.throw(Error);
+		expect(function(){
+			parseComments("");
+		}).to.throw(Error);
+		expect(function(){
+			parseComments("", {});
+		}).to.throw(Error);
 	});
-
 
 	it("should parse comments", function(){
 		var html = fs.readFileSync("./test/exampleCommentsHTML");
