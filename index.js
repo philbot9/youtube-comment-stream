@@ -8,9 +8,9 @@ function makeStream(videoID) {
 		return console.error(new Error("comment-streamer: No video ID specified"));
 
 	var loadCommentsPage = require('./lib/comment-pager.js')({"videoID": videoID});
-	var rStream = new Readable( {objectMode: true} );
+	var rStream = new Readable();
 
-	var commentsJSON;
+	var comments;
 	var prevComments;
 	var nextPageToken = null;
 
@@ -23,26 +23,26 @@ function makeStream(videoID) {
 
 			deleteOverlap(prevComments, page.comments);
 
-			if(!commentsJSON)
-				commentsJSON = [];
+			if(!comments)
+				comments = [];
 			
 			page.comments.forEach(function(comment) {
-				commentsJSON.push(JSON.stringify(comment));
+				comments.push(comment);
 			});
 
 			prevComments = page.comments;
 			nextPageToken = page.nextPageToken;
 
-			rStream.push(commentsJSON.shift());
+			rStream.push(JSON.stringify(comments.shift()) + "\n");
 		});
 	};
 
 	rStream._read = function(size) {
-		if(!commentsJSON)
+		if(!comments)
 			return getNextPage();
 
-		if(commentsJSON.length) {
-			this.push(commentsJSON.shift());
+		if(comments.length) {
+			rStream.push(JSON.stringify(comments.shift()) + "\n");
 		} else if(nextPageToken) {
 			return getNextPage();
 		} else {
