@@ -1,11 +1,9 @@
 var parseComments = require('./lib/comment-parser.js');
 var Readable = require('stream').Readable;
 
-module.exports = makeStream;
-
-function makeStream(videoID) {
+module.exports = function(videoID) {
 	if(!videoID)
-		return console.error(new Error("comment-streamer: No video ID specified"));
+		throw new Error("No video ID specified");
 
 	var loadCommentsPage = require('./lib/comment-pager.js')({"videoID": videoID});
 	var rStream = new Readable();
